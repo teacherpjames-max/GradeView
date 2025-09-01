@@ -1,0 +1,66 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Student Grade Search</title>
+  <style>
+    body { font-family: Arial, sans-serif; margin: 40px; }
+    .search-box { margin-bottom: 20px; }
+    label { font-weight: bold; }
+    input[type="text"] { padding: 8px; width: 230px; }
+    button { padding: 8px 16px; }
+    .result { margin-top: 20px; }
+    .not-found { color: red; }
+    table { border-collapse: collapse; margin-top: 10px; }
+    th, td { border: 1px solid #ccc; padding: 6px 12px; }
+    th { background-color: #f4f4f4; }
+  </style>
+</head>
+<body>
+  <h1>Student Grade Search</h1>
+  <div class="search-box">
+    <label for="studentName">Enter your name:</label>
+    <input type="text" id="studentName" placeholder="e.g., Jane Doe" />
+    <button onclick="searchGrade()">Search</button>
+  </div>
+  <div class="result" id="result"></div>
+
+  <script>
+    let students = [];
+
+    // Fetch grades.json on page load
+    fetch('grades.json')
+      .then(response => response.json())
+      .then(data => {
+        students = data;
+      })
+      .catch(error => {
+        document.getElementById('result').innerHTML = '<span class="not-found">Error loading grades data.</span>';
+        console.error('Error loading grades.json:', error);
+      });
+
+    function searchGrade() {
+      const name = document.getElementById('studentName').value.trim().toLowerCase();
+      const resultDiv = document.getElementById('result');
+      resultDiv.innerHTML = '';
+
+      if (!name) {
+        resultDiv.innerHTML = '<span class="not-found">Please enter a name.</span>';
+        return;
+      }
+
+      const student = students.find(s => s.name_code.toLowerCase() === name);
+      if (student) {
+        let gradesHtml = '<table><tr><th>Subject</th><th>Grade</th></tr>';
+        for (let subject in student.Grades) {
+          gradesHtml += `<tr><td>${subject}</td><td>${student.Grades[subject]}</td></tr>`;
+        }
+        gradesHtml += '</table>';
+        resultDiv.innerHTML = `<h3>Grades for ${student.name_code}:</h3>${gradesHtml}`;
+      } else {
+        resultDiv.innerHTML = '<span class="not-found">Student not found.</span>';
+      }
+    }
+  </script>
+</body>
+</html>
